@@ -7,7 +7,7 @@ FSS progression is also displayed with bodies, signals, asteroids, biological an
 
 Installation
 ---
-Download from [latest release](https://github.com/Caprica-XIV/EDMC-C14-SoundViewer/releases/tag/1.0.0).
+Download from [latest release](https://github.com/Caprica-XIV/EDMC-C14-Explorer/releases/tag/0.1.0).
 Extract zip files into the EDMC plugin folder.
 
 Disclaimer
