@@ -1,5 +1,9 @@
 # EDMC-C14-Explorer
 EDMC plugin to display a compass and an altimeter, warn about hull and fuel levels.
+FSS progression is also displayed with bodies, signals, asteroids, biological and geological.
+
+![image](https://user-images.githubusercontent.com/114026279/205447099-1481a8ee-56a5-4da0-86e8-a87476391a9c.png)
+
 
 Installation
 ---
