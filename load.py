@@ -14,7 +14,7 @@ from hudinfo import HudInfoC14
 from pip import PipC14
 from altimeter import AltimeterC14
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 plugin_name = os.path.basename(os.path.dirname(__file__))
 logger = logging.getLogger(f'{appname}.{plugin_name}')
 
@@ -137,9 +137,12 @@ def journal_entry(
     if entry['event'] == 'ApproachBody':
         this.nearBody = 1
         this.hudinfo.set_SurfaceGravity(this.signals.get_SurfaceGravity(entry['BodyID']))
+        if entry['BodyID'] in this.signals.biomes:
+            this.pips.set_biomes(this.signals.biomes[entry['BodyID']])
         open_compass()
         
     if entry['event'] == 'FSDJump':
+        this.hudinfo.set_SurfaceGravity(-1)
         this.signals.journal_FSDJump()
         open_signals()
         

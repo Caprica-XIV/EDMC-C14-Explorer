@@ -26,6 +26,7 @@ class SignalsC14():
         self.landables = 0
         self.ed_discovered = 0
         self.ed_mapped = 0
+        self.biomes = []
 
     def setup_frame(self, parent: tk.Frame):
         self.parent_frame = parent
@@ -34,6 +35,7 @@ class SignalsC14():
 
         self.lbl_signal = tk.Label(self.frame_signal, text="Waiting for honk")
         self.lbl_signal.grid(row=0, sticky=tk.W, column=0, padx=4)
+        
         theme.update(self.parent_frame)
         
     def popup(self):
@@ -127,6 +129,7 @@ class SignalsC14():
     def journal_FSDJump(self):
         # We arrived at a new system!
         self.lbl_signal.config(text="Signals: ?")
+        self.entries = []
         self.map_ids = []
         self.map_belt_ids = []
         self.mapped[0] = self.map_UIA
@@ -146,6 +149,7 @@ class SignalsC14():
         self.landables = 0
         self.ed_discovered = 0
         self.ed_mapped = 0
+        self.biomes = []
         self.update_signals_frame()
                  
     def journal_FSSDiscoveryScan(self, entry: MutableMapping[str, Any]):
@@ -226,6 +230,10 @@ class SignalsC14():
 
     def journal_SAASignalsFound(self, entry: MutableMapping[str, Any]):
         update = False
+        if 'Genuses' in entry:
+            self.biomes[entry['BodyID']] = []
+            for bio in entry['Genuses']:
+                self.biomes[entry['BodyID']].append(bio['Genus_Localised'])
         if 'Signals' in entry:
             for sgnl in entry['Signals']:
                 self.map_signals += sgnl['Count']

@@ -9,6 +9,7 @@ class PipC14():
         self.logger = logger
         self.parent_frame: Optional[tk.Frame]
         self.pip_canvas: Optional[tk.Canvas]
+        self.biomes_frame: Optional[tk.Frame]
         self.sys = 0
         self.mot = 0
         self.arm = 0
@@ -19,14 +20,25 @@ class PipC14():
         self.parent_frame = parent
         self.pip_canvas = tk.Canvas(self.parent_frame, height=50, width=30, border=None, borderwidth=0)
         self.pip_canvas.grid(row=0, sticky=tk.E, column=0)
+        self.biomes_frame = tk.Frame(self.parent_frame)
         theme.update(self.parent_frame)
-        
+    
     def popup(self):
         self.pip_canvas.grid(row=0, sticky=tk.E, column=0)
-        
+        self.biomes_frame.grid(row=0, sticky=tk.E+tk.W, column=1)
+    
     def dismiss(self):
         self.pip_canvas.grid_remove()
-            
+        self.biomes_frame.grid_remove()
+
+    def set_biomes(self, biomes: any):
+        self.biomes_frame.destroy('all')
+        row=0
+        for bio in biomes:
+            lbl = tk.Label(self.biomes_frame, text=bio)
+            lbl.grid(row=row, column=0, sticky=tk.W)
+            row+=1
+        
     def set_pip(self, sys: int, mot: int, arm: int):
         self.sys = sys
         self.arm = arm
@@ -45,9 +57,9 @@ class PipC14():
         x = index * 10 + 2
         y = 2
         if val > 0:
-            for i in range(1, val):
+            for i in range(0, val):
                 self.draw_tick(x, 50-y)
-                y += 6
+                y += 5
 
     def update_pip_canvas(self):
         if self.value == self.prev_value:

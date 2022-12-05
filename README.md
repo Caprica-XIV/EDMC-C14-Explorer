@@ -17,7 +17,7 @@ Combined with FSS, the plugin helps you look at what's most interesting. Adjust 
 
 Installation
 ---
-Download from [latest release](https://github.com/Caprica-XIV/EDMC-C14-Explorer/releases/tag/0.2.0).
+Download from [latest release](https://github.com/Caprica-XIV/EDMC-C14-Explorer/releases/tag/0.3.0).
 Extract zip files into the EDMC plugin folder.
 
 Disclaimer
