@@ -1,49 +1,46 @@
 import logging
 from typing import Optional
 import tkinter as tk
-from compassframe import CompassFrame
 from theme import theme
 
 class PipC14():
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, logger: logging.Logger, scale: int):
         self.logger = logger
+        self.ui_scale = scale
         self.parent_frame: Optional[tk.Frame]
         self.pip_canvas: Optional[tk.Canvas]
-        self.biomes_frame: Optional[tk.Frame]
         self.sys = 0
         self.mot = 0
         self.arm = 0
         self.value = 0
         self.prev_value = 0
 
+    def scale(self, value: int) -> int:
+        return int(value * self.ui_scale / 100.0)
+
     def setup_frame(self, parent: tk.Frame):
         self.parent_frame = parent
-        self.pip_canvas = tk.Canvas(self.parent_frame, height=50, width=30, border=None, borderwidth=0)
-        self.pip_canvas.grid(row=0, sticky=tk.E, column=0)
-        self.biomes_frame = tk.Frame(self.parent_frame)
+        self.pip_canvas = tk.Canvas(self.parent_frame, 
+                                    height=self.scale(50), 
+                                    width=self.scale(30), 
+                                    border=None, borderwidth=0)
+        self.pip_canvas.grid(row=0, sticky=tk.W, column=4)
         theme.update(self.parent_frame)
     
     def popup(self):
-        self.pip_canvas.grid(row=0, sticky=tk.E, column=0)
-        self.biomes_frame.grid(row=0, sticky=tk.E+tk.W, column=1)
+        # self.pip_canvas.grid(row=0, sticky=tk.W, column=0)
+        a = 2
     
     def dismiss(self):
-        self.pip_canvas.grid_remove()
-        self.biomes_frame.grid_remove()
-
-    def set_biomes(self, biomes: any):
-        self.biomes_frame.destroy('all')
-        row=0
-        for bio in biomes:
-            lbl = tk.Label(self.biomes_frame, text=bio)
-            lbl.grid(row=row, column=0, sticky=tk.W)
-            row+=1
+        # self.pip_canvas.grid_remove()
+        self.pip_canvas.delete('all')
         
     def set_pip(self, sys: int, mot: int, arm: int):
         self.sys = sys
         self.arm = arm
         self.mot = mot
         self.value = int(str(sys)+str(mot)+str(arm))
+        self.update_pip_canvas()
 
     def draw_tick(self, x: int, y: int):
         col = "yellow"
@@ -51,7 +48,9 @@ class PipC14():
             col = "orange"
         if y < 20:
             col = "red"
-        self.pip_canvas.create_rectangle(x, y, x+8, y+4, fill=col)
+        self.pip_canvas.create_rectangle(self.scale(x),   self.scale(y), 
+                                         self.scale(x+8), self.scale(y+4), 
+                                         fill=col)
     
     def draw_pip(self, index: int, val: int):
         x = index * 10 + 2

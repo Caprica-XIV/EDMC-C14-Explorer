@@ -26,7 +26,6 @@ class SignalsC14():
         self.landables = 0
         self.ed_discovered = 0
         self.ed_mapped = 0
-        self.biomes = []
 
     def setup_frame(self, parent: tk.Frame):
         self.parent_frame = parent
@@ -39,10 +38,12 @@ class SignalsC14():
         theme.update(self.parent_frame)
         
     def popup(self):
-        self.frame_signal.grid(row=0,sticky=tk.SW, column=0)
+        # self.frame_signal.grid(row=0,sticky=tk.SW, column=0)
+        a=1
         
     def dismiss(self):
-        self.frame_signal.grid_remove()
+        # self.frame_signal.grid_remove()
+        a=1
             
     def update_signals_frame(self):
         """ maj des signaux affichés """
@@ -56,65 +57,77 @@ class SignalsC14():
         
         self.lbl_signal = tk.Label(self.frame_signal, text="Total: "+str(self.mapped[0])+"/"+str(self.mapped[1]))
         self.lbl_signal.grid(row=0, sticky=tk.W, column=0)
-        col+=1
+        col=1-col
         if self.ed_discovered >= 0:
             lbl = tk.Label(self.frame_signal, text="Discovered: "+str(self.ed_discovered)+"/"+str(self.map_bodies[1]))
             lbl.grid(row=row, column=col, sticky=tk.W)        
-            col+=1
+            col=1-col
+            row += 1 if col == 0 else 0
         if self.ed_mapped >= 0:
             lbl = tk.Label(self.frame_signal, text="Mapped: "+str(self.ed_mapped)+"/"+str(self.map_bodies[1]))
             lbl.grid(row=row, column=col, sticky=tk.W)
-            col+=1
+            col=1-col
+            row += 1 if col == 0 else 0
             
-        col=0
-        row=+1
+        # col=0
+        
 
         if self.map_bodies[1] > 0:
             lbl = tk.Label(self.frame_signal, text="Bodies: "+str(self.map_bodies[0])+"/"+str(self.map_bodies[1]))
             lbl.grid(row=row, column=col, sticky=tk.W)        
-            col+=1
+            col=1-col
+            row += 1 if col == 0 else 0
         if self.map_others[1] > 0:
             lbl = tk.Label(self.frame_signal, text="Others: "+str(self.map_others[0])+"/"+str(self.map_others[1]))
             lbl.grid(row=row, column=col, sticky=tk.W)
-            col+=1
+            col=1-col
+            row += 1 if col == 0 else 0
         if self.map_UIA > 0:
             lbl = tk.Label(self.frame_signal, text="UIA: "+str(self.map_UIA))
             lbl.grid(row=row, column=col, sticky=tk.W)
-            col+=1
+            col=1-col
+            row += 1 if col == 0 else 0
         if self.map_belts > 0:
             lbl = tk.Label(self.frame_signal, text="Asteroids: "+str(self.map_belts))
             lbl.grid(row=row, column=col, sticky=tk.W)
+            row += 1 if col == 0 else 0
 
-        col=0
-        row+=1
+        # col=0
+        # row+=1
         
         if self.map_geo > 0:
             lbl = tk.Label(self.frame_signal, text="Geological: "+str(self.map_geo))
             lbl.grid(row=row, column=col, sticky=tk.W)
-            col+=1
+            col=1-col
+            row += 1 if col == 0 else 0
         if self.map_bio > 0:
             lbl = tk.Label(self.frame_signal, text="Biological: "+str(self.map_bio))
             lbl.grid(row=row, column=col, sticky=tk.W)
-            col+=1
+            col=1-col
+            row += 1 if col == 0 else 0
         if self.map_rings > 0:
             lbl = tk.Label(self.frame_signal, text="Rings: "+str(self.map_rings))
             lbl.grid(row=row, column=col, sticky=tk.W)
+            row += 1 if col == 0 else 0
 
-        col=0
-        row+=1
+        # col=0
+        # row+=1
         
         if self.terraformables > 0:
             lbl = tk.Label(self.frame_signal, text="Terraformables: "+str(self.terraformables))
             lbl.grid(row=row, column=col, sticky=tk.W)
-            col+=1
+            col=1-col
+            row += 1 if col == 0 else 0
         if self.landables > 0:
             lbl = tk.Label(self.frame_signal, text="Landables: "+str(self.landables))
             lbl.grid(row=row, column=col, sticky=tk.W)
-            col+=1
+            col=1-col
+            row += 1 if col == 0 else 0
         if self.map_signals > 0:
             lbl = tk.Label(self.frame_signal, text="Signals: "+str(self.map_signals))
             lbl.grid(row=row, column=col, sticky=tk.W)
-            col+=1
+            col=1-col
+            row += 1 if col == 0 else 0
             
         col=0
         row+=1
@@ -128,7 +141,7 @@ class SignalsC14():
         
     def journal_FSDJump(self):
         # We arrived at a new system!
-        self.lbl_signal.config(text="Signals: ?")
+        self.lbl_signal.config(text="Waiting for honk")
         self.entries = []
         self.map_ids = []
         self.map_belt_ids = []
@@ -149,7 +162,6 @@ class SignalsC14():
         self.landables = 0
         self.ed_discovered = 0
         self.ed_mapped = 0
-        self.biomes = []
         self.update_signals_frame()
                  
     def journal_FSSDiscoveryScan(self, entry: MutableMapping[str, Any]):
@@ -180,10 +192,10 @@ class SignalsC14():
             if entry['PlanetClass'] not in self.PlanetClass:
                 self.PlanetClass[entry['PlanetClass']] = 0
             self.PlanetClass[entry['PlanetClass']] += 1
-        if len(entry['TerraformState']) > 0: self.terraformables += 1
-        if entry['Landable']: self.landables += 1
-        if entry['WasDiscovered']: self.ed_discovered +=1
-        if entry['WasMapped']: self.ed_mapped +=1
+        if 'TerraformState' in entry and len(entry['TerraformState']) > 0: self.terraformables += 1
+        if 'Landable' in entry and entry['Landable']: self.landables += 1
+        if 'WasDiscovered' in entry and entry['WasDiscovered']: self.ed_discovered +=1
+        if 'WasMapped' in entry and entry['WasMapped']: self.ed_mapped +=1
                 
     def journal_Scan(self, entry: MutableMapping[str, Any]):
         """ Gestion des données lors d'un scan """
@@ -219,32 +231,17 @@ class SignalsC14():
                 # on détermine le type et le count
                 if 'Geological' in sgnl['Type']:
                     self.map_geo += sgnl['Count']
-                    # self.map_others[1] -= sgnl['Count']
-                    # self.mapped[0] += sgnl['Count']
                     self.update_signals_frame()
                 if 'Biological' in sgnl['Type']:
                     self.map_bio += sgnl['Count']
-                    # self.map_others[1] -= sgnl['Count']
-                    # self.mapped[0] += sgnl['Count']
                     self.update_signals_frame()
 
     def journal_SAASignalsFound(self, entry: MutableMapping[str, Any]):
         update = False
-        if 'Genuses' in entry:
-            self.biomes[entry['BodyID']] = []
-            for bio in entry['Genuses']:
-                self.biomes[entry['BodyID']].append(bio['Genus_Localised'])
         if 'Signals' in entry:
             for sgnl in entry['Signals']:
                 self.map_signals += sgnl['Count']
                 update = True
-                # on détermine le type et le count
-                # if 'Guardian' in sgnl['Type']:
-                #     self.map_signals += sgnl['Count']
-                #     update_signals_frame()
-                # if 'Thargoid' in sgnl['Type']:
-                #     self.map_signals += sgnl['Count']
-                #     update_signals_frame()  
         if update:
             self.update_signals_frame()
         

@@ -5,6 +5,7 @@ import threading
 from time import sleep
 import tkinter as tk
 from typing import Any, Dict, Mapping, MutableMapping, Optional
+from tkinter import ttk
 from config import config, appname
 from theme import theme
 
@@ -13,8 +14,10 @@ from compass import CompassC14
 from hudinfo import HudInfoC14
 from pip import PipC14
 from altimeter import AltimeterC14
+from biomes import BiomesC14
+from flags import FlagsC14
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 plugin_name = os.path.basename(os.path.dirname(__file__))
 logger = logging.getLogger(f'{appname}.{plugin_name}')
 
@@ -33,21 +36,26 @@ if not logger.hasHandlers():
 
 class ExplorerCThis:
     """Holds module globals."""
-
-    def __init__(self):
+    def __init__(self, scale: int):
         self.frame: Optional[tk.Frame]
         self.signals = SignalsC14()
-        self.compass = CompassC14(logger)
-        self.altimeter = AltimeterC14(logger)
-        self.hudinfo = HudInfoC14(logger)
-        self.pips = PipC14(logger)
-        self.getOut = True 
+        self.compass = CompassC14(logger, scale)
+        self.altimeter = AltimeterC14(logger, scale)
+        self.hudinfo = HudInfoC14(logger, scale)
+        self.pips = PipC14(logger, scale)
+        self.biomes = BiomesC14(logger)
+        self.f_system: Optional[tk.Frame]
+        self.f_biomes: Optional[tk.Frame]
         self.nearBody = -1
+        self.plugin_dir = ''
+        self.ui_scale = scale
         
-this = ExplorerCThis()
+this = ExplorerCThis(config.get_int('ui_scale'))
 
 
 def plugin_start3(plugin_dir: str) -> str:
+    this.plugin_dir = plugin_dir
+    # this.ui_scale = config.get_int('ui_scale')
     return plugin_name +" "+ VERSION
     
 
@@ -55,40 +63,57 @@ def plugin_stop():
     """
     EDMC is closing
     """
-    this.getOut = True
+    this.compass.getOut = True
     this.compass.dismiss()
 
+def show_system():
+    this.f_biomes.grid_remove()
+    this.f_system.grid(row=0,column=0,sticky=tk.SW+tk.E)
+    
+def show_biomes():
+    this.f_system.grid_remove()
+    this.f_biomes.grid(row=0,column=0,sticky=tk.SW+tk.E)
 
 def plugin_app(parent: tk.Frame) -> tk.Frame:
     """
     TK widgets for the EDMarketConnector main window
     """
     this.frame = tk.Frame(parent)
+    # row du hud compass pip altimetre fuel hull g
     row0 = tk.Frame(this.frame, border=None)
     row0.grid(row=0,sticky=tk.E+tk.W, column=0)
+    this.compass.setup_frame(row0)
+    this.altimeter.setup_frame(row0)
+    this.pips.setup_frame(row0)
+    this.hudinfo.setup_frame(row0, plugin_dir=this.plugin_dir)
     
-    row0_1 = tk.Frame(row0, border=None)
-    row0_1.grid(row=0,sticky=tk.E+tk.W, column=0, columnspan=4)
-    row0_2 = tk.Frame(row0, border=None)
-    row0_2.grid(row=0,sticky=tk.W, column=4)
-    
+    # row du tab pour signaux, bio etc
     row1 = tk.Frame(this.frame, border=None)
-    row1.grid(row=1,sticky=tk.E+tk.W, column=0)
+    row1.grid(row=1,sticky=tk.E+tk.W, column=0, pady=5)   
     
+    row1_1 = tk.Frame(row1, border=None)
+    row1_1.grid(row=0,sticky=tk.E+tk.W, column=0)   
+
+    bt_System = tk.Button(row1_1, text='System', command=show_system)
+    bt_System.grid(row=0,column=0,sticky=tk.W)
+
+    bt_Biomes = tk.Button(row1_1, text='Biomes', command=show_biomes)
+    bt_Biomes.grid(row=0,column=1,sticky=tk.W)
+
+    row1_2 = tk.Frame(row1, border=1)
+    row1_2.grid(row=1,sticky=tk.E+tk.W, column=0)   
+
+    this.f_system = tk.Frame(row1_2, border=2)
+    this.f_system.grid(row=0,sticky=tk.SW+tk.E, column=0)
+    this.signals.setup_frame(this.f_system)    
     
-    this.signals.setup_frame(row0_1)
-    this.compass.setup_frame(row0_1)
-    this.altimeter.setup_frame(row0_1)
-    
-    this.pips.setup_frame(row0_2)
-    
-    this.hudinfo.setup_frame(row1)
+    # tab biomes
+    this.f_biomes = tk.Frame(row1_2, border=2)
+    # f_biomes.grid(row=0,sticky=tk.E+tk.W, column=0)
+    this.biomes.setup_frame(this.f_biomes)
     
     theme.update(this.frame)
-    
     open_signals()
-    
-    threading.Thread(target=worker, daemon=True, name='C14 canvas loop').start()
     
     return this.frame
 
@@ -97,53 +122,87 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: Dict[str, Any]):
     """
     Mise à jour du fichier status.json
     """
-    if 'Fuel' in entry and entry['Fuel']:
+    if 'Fuel' in entry:
         this.hudinfo.set_fuel_main(entry['Fuel']['FuelMain'], entry['Fuel']['FuelReservoir'])
-    if 'Latitude' in entry and entry['Latitude']:
+    if 'Latitude' in entry:
         this.compass.set_Latitude( entry['Latitude'] )
         open_compass()
-    if 'Longitude' in entry and entry['Longitude']:
+    if 'Longitude' in entry:
         this.compass.set_Longitude( entry['Longitude'] )
         open_compass()
-    if 'Heading' in entry and entry['Heading']:
+    if 'Heading' in entry:
         this.compass.set_Heading( entry['Heading'] )
         open_compass()
-    if 'Altitude' in entry and entry['Altitude']:
+    if 'Altitude' in entry:
         this.altimeter.set_Altitude( entry['Altitude'] )
         open_compass()
     if 'Pips' in entry:
         this.pips.set_pip(entry['Pips'][0], entry['Pips'][1], entry['Pips'][2])
     if 'Body' in entry:
-        this.hudinfo.set_SurfaceGravity(this.signals.get_SurfaceGravity(entry['Body']))
-
-
+        this.altimeter.set_SurfaceGravity(this.signals.get_SurfaceGravity(entry['Body']))
+    if 'Gravity' in entry:
+        this.altimeter.set_SurfaceGravity(entry['Gravity']*10.0)
+    if 'Health' in entry:
+        # on foot health
+        this.hudinfo.set_HullHealth(entry['Health'])
+    if 'Flags' in entry:
+        flag = entry['Flags']
+        this.hudinfo.set_ShieldsUp((flag & FlagsC14.flag_ShieldsUp))
+    if 'Flags2' in entry:
+        #decoupage de la valeur selon les flag et signification
+        flag = entry['Flags2']
+        this.hudinfo.set_ModeOnFoot((flag & FlagsC14.flag2_OnFoot))
+        
 def journal_entry(
     cmdr: str, is_beta: bool, system: str, station: str, entry: MutableMapping[str, Any], state: Mapping[str, Any]
 ) -> None:
     """
     Methode de scrutation de maj du journal ED par EDMC
     """
+    
+    if state['Body']:
+        this.biomes.state_body=state['Body']
+        
+    if state['Modules']:
+        for itm in state['Modules']:
+            if 'FuelTank' in itm:                                
+                tank = state['Modules']['FuelTank']['Item']
+                if 'size6' in tank:
+                    this.hudinfo.set_FuelCapacity(64)
+                if 'size5' in tank:
+                    this.hudinfo.set_FuelCapacity(32)
+                if 'size4' in tank:
+                    this.hudinfo.set_FuelCapacity(16)
+                if 'size3' in tank:
+                    this.hudinfo.set_FuelCapacity(8)
+                if 'size2' in tank:
+                    this.hudinfo.set_FuelCapacity(4)
+                if 'size1' in tank:
+                    this.hudinfo.set_FuelCapacity(2)
+                if 'size0' in tank:
+                    this.hudinfo.set_FuelCapacity(1)
+            
+    
     if entry['event'] == 'Location':
-        this.compass.set_Latitude( entry['Latitude'] )
-        this.compass.set_Longitude( entry['Longitude'] )
+        if 'Latitude' in entry: this.compass.set_Latitude( entry['Latitude'] )
+        if 'Longitude' in entry: this.compass.set_Longitude( entry['Longitude'] )
         if( entry['Docked']): open_compass()
         else: open_signals()
     
     if entry['event'] == 'LeaveBody':
         this.nearBody = 0
-        this.hudinfo.set_SurfaceGravity(-1)
+        this.altimeter.set_SurfaceGravity(-1)
         open_signals()
             
     if entry['event'] == 'ApproachBody':
         this.nearBody = 1
-        this.hudinfo.set_SurfaceGravity(this.signals.get_SurfaceGravity(entry['BodyID']))
-        if entry['BodyID'] in this.signals.biomes:
-            this.pips.set_biomes(this.signals.biomes[entry['BodyID']])
+        this.altimeter.set_SurfaceGravity(this.signals.get_SurfaceGravity(entry['BodyID']))
         open_compass()
         
     if entry['event'] == 'FSDJump':
-        this.hudinfo.set_SurfaceGravity(-1)
+        this.altimeter.set_SurfaceGravity(-1)
         this.signals.journal_FSDJump()
+        this.biomes.journal_FSDJump()
         open_signals()
         
     if entry['event'] == 'FSSDiscoveryScan':
@@ -156,11 +215,15 @@ def journal_entry(
             
     if entry['event'] == 'FSSBodySignals':
         this.signals.journal_FSSBodySignals(entry)
+        this.biomes.journal_FSSBodySignals(entry)
         open_signals()
                     
     if entry['event'] == 'SAASignalsFound':
-        this.signals.journal_SAASignalsFound(entry)
-        open_signals()
+        if 'Genuses' in entry:
+            this.biomes.journal_SAASignalsFound(entry)
+            show_biomes()
+        if 'Signals' in entry:
+            this.signals.journal_SAASignalsFound(entry)
 
     if entry['event'] == 'LaunchSRV':
         this.hudinfo.set_ModeSRV(True)
@@ -168,6 +231,10 @@ def journal_entry(
 
     if entry['event'] == 'DockSRV':
         this.hudinfo.set_ModeSRV(False)
+    
+    if entry['event'] == 'Embark':
+        this.hudinfo.set_ModeOnFoot(False)
+        this.hudinfo.set_ModeSRV(entry['SRV'])
     
     if entry['event'] == 'Loadout':
         this.hudinfo.set_FuelCapacity(entry['FuelCapacity']['Main'])
@@ -181,21 +248,27 @@ def journal_entry(
         
     if entry['event'] == 'Synthesis':
         if entry['Name'] == 'Repair Premium':
-            this.hudinfo.set_HullHealth(0.99)
+            this.hudinfo.set_HullHealth(1.0)
         if entry['Name'] == 'Repair Basic':
-            this.hudinfo.set_HullHealth(0.99)
+            this.hudinfo.set_HullHealth(1.0)
         if entry['Name'] == 'Repair Standard':
-            this.hudinfo.set_HullHealth(0.99)
+            this.hudinfo.set_HullHealth(1.0)
         
         if entry['Name'] == 'Fuel Premium':
-            this.hudinfo.set_fuel_main(0, 0.99)
+            this.hudinfo.set_fuel_main(0, 1.0)
         if entry['Name'] == 'Fuel Basic':
-            this.hudinfo.set_fuel_main(0, 0.99)
+            this.hudinfo.set_fuel_main(0, 1.0)
         if entry['Name'] == 'Fuel Standard':
-            this.hudinfo.set_fuel_main(0, 0.99)
+            this.hudinfo.set_fuel_main(0, 1.0)
     
     if entry['event'] == 'ShieldState':
         this.hudinfo.set_ShieldsUp(entry['ShieldsUp'])
+    
+    if entry['event'] == 'CodexEntry':
+        this.biomes.CodexEntry(entry)
+    
+    if entry['event'] == 'ScanOrganic':
+        this.biomes.ScanOrganic(entry)
             
 
 def open_compass():
@@ -207,16 +280,9 @@ def open_compass():
 def open_signals():
     this.compass.dismiss()
     this.altimeter.dismiss()
+    this.biomes.dismiss()
     this.signals.popup()
-        
-def worker():
-    logger.info("loop start")
-    this.getOut = False
-    while not this.getOut:
-        try:
-            this.compass.update_canvas()
-            this.altimeter.update_alt_canvas()
-            this.pips.update_pip_canvas()
-        except Exception as e:
-            logger.info("plantage", exc_info=e)
-        sleep(1/10)
+    
+def open_biomes():
+    this.signals.dismiss()
+    this.biomes.popup()
