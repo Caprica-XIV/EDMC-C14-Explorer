@@ -3,21 +3,15 @@ EDMC plugin to display a compass and an altimeter, warn about hull and fuel leve
 FSS progression is also displayed with bodies, signals, asteroids, biological and geological.
 
 The compass and altimeter will show up on bodies, the compass indicates your directionnal vector, not where you are currently looking.
-![Capture d’écran 2022-12-04 190011](https://user-images.githubusercontent.com/114026279/205509046-d9c2120a-aa6e-4749-81a1-2c572ba43784.png)
-
+![C14Explo-1](https://user-images.githubusercontent.com/114026279/229381505-3cdbb570-2526-4641-a37c-5f33d50831cc.jpg)
 
 Keep a direction and track your hull and fuel even in external vanity cam
-![Capture d’écran 2022-12-04 185848](https://user-images.githubusercontent.com/114026279/205509048-b75e7648-88f7-4d74-8a5e-782d38c03ad0.png)
-
-
-Combined with FSS, the plugin helps you look at what's most interesting. Adjust your pip during screenshots session :)
-![Capture d’écran 2022-12-04 184904](https://user-images.githubusercontent.com/114026279/205509051-365ca2d8-8e9c-4c98-9510-fb87309ad4ed.png)
-
+![C14Explo-2](https://user-images.githubusercontent.com/114026279/229381511-ebcb289c-5b6b-44cb-a281-e0cfaf1b476a.jpg)
 
 
 Installation
 ---
-Download from [latest release](https://github.com/Caprica-XIV/EDMC-C14-Explorer/releases/tag/0.3.0).
+Download from [latest release](https://github.com/Caprica-XIV/EDMC-C14-Explorer/releases/tag/0.4.0).
 Extract zip files into the EDMC plugin folder.
 
 Disclaimer
