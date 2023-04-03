@@ -51,15 +51,13 @@ class BiomesC14():
         short = ''
         if 'BodyName' in entry:
             name = entry['BodyName']
-            split= entry['BodyName'].split(' ')
-            if '0123456789' in split[-1]:
-                short=split[-1]
-            else:
-                short=split[len(split)-2] + split[-1]
-        elif 'System' in entry:
-            name = entry['System']
         else:
             name = self.state_body
+        split= name.split(' ')
+        if '0123456789' in split[-1]:
+            short=split[-1]
+        elif len(split) > 1:
+            short=split[len(split)-2] + split[-1]
         
         self.bodies.append({'id': id,
                             'name': name,
@@ -163,7 +161,7 @@ class BiomesC14():
             for bio in body['biomes']:
                 info = '#'+ str(body['short']) +' '+ str(bio['species']) +': '+ str(bio['scans']) +'/3'              
                 lbl = tk.Label(self.biomes_frame, text=info)
-                lbl.grid(row=row, sticky=tk.W+tk.E, column=0, columnspan=2)
+                lbl.grid(row=row, sticky=tk.W, column=0, columnspan=2)
                 row += 1
         
         theme.update(self.biomes_frame)

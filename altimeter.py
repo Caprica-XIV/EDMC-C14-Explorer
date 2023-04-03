@@ -160,11 +160,11 @@ class AltimeterC14():
         else:
             self.g_ind = 1 - self.g_ind
             if self.g_ind < 0: self.g_ind = 0
-        self.alt_canvas.create_text(self.scale(39), 
+        self.alt_canvas.create_text(self.scale(35), 
                                     self.scale(45), 
                                     text= 'G:'+ str(self.SurfaceGravity), 
                                     fill='black', font='Arial 6')
-        self.alt_canvas.create_text(self.scale(40), 
+        self.alt_canvas.create_text(self.scale(36), 
                                     self.scale(46), 
                                     text= 'G:'+ str(self.SurfaceGravity), 
                                     fill=self.colors[self.g_ind], font='Arial 6')

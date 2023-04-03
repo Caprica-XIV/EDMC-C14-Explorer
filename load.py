@@ -17,7 +17,7 @@ from altimeter import AltimeterC14
 from biomes import BiomesC14
 from flags import FlagsC14
 
-VERSION = "0.4.0"
+VERSION = "0.4.1"
 plugin_name = os.path.basename(os.path.dirname(__file__))
 logger = logging.getLogger(f'{appname}.{plugin_name}')
 
