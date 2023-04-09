@@ -94,12 +94,14 @@ class BiomesC14():
             if 'ScanType' in entry and 'Analyse' in entry['ScanType']:
                 body['biomes'].append({
                     'species': species,
-                    'scans': 3
+                    'scans': 3,
+                    'max': 3
                 })
             else:
                 body['biomes'].append({
                     'species': species,
-                    'scans': (1 if 'CodexEntry' not in entry['event'] else 0)
+                    'scans': (1 if ('CodexEntry' not in entry['event'] or 'Geology' in entry['SubCategory']) else 0),
+                    'max': 1 if ('CodexEntry' in entry['event'] and 'Geology' in entry['SubCategory']) else 3
                 })
         self.update_frame()
     
@@ -159,7 +161,7 @@ class BiomesC14():
         
         for body in self.bodies:
             for bio in body['biomes']:
-                info = '#'+ str(body['short']) +' '+ str(bio['species']) +': '+ str(bio['scans']) +'/3'              
+                info = '#'+ str(body['short']) +' '+ str(bio['species']) +': '+ str(bio['scans']) +'/'+ str(bio['max'])              
                 lbl = tk.Label(self.biomes_frame, text=info)
                 lbl.grid(row=row, sticky=tk.W, column=0, columnspan=2)
                 row += 1

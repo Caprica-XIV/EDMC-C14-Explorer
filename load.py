@@ -9,15 +9,15 @@ from tkinter import ttk
 from config import config, appname
 from theme import theme
 
-from signals import SignalsC14
-from compass import CompassC14
-from hudinfo import HudInfoC14
-from pip import PipC14
-from altimeter import AltimeterC14
-from biomes import BiomesC14
-from flags import FlagsC14
+from elements.C14Signals import SignalsC14
+from elements.C14Compass import CompassC14
+from elements.C14Hudinfo import HudInfoC14
+from elements.C14Pip import PipC14
+from elements.C14Altimeter import AltimeterC14
+from elements.C14Biomes import BiomesC14
+from C14Flags import FlagsC14
 
-VERSION = "0.4.1"
+VERSION = "0.4.2"
 plugin_name = os.path.basename(os.path.dirname(__file__))
 logger = logging.getLogger(f'{appname}.{plugin_name}')
 
