@@ -13,7 +13,7 @@ Keep a direction and track your hull and fuel even in external vanity cam
 
 Installation
 ---
-Download from [latest release](https://github.com/Caprica-XIV/EDMC-C14-Explorer/releases/tag/0.4.1).
+Download from [latest release](https://github.com/Caprica-XIV/EDMC-C14-Explorer/releases/tag/0.4.2).
 Extract zip files into the EDMC plugin folder.
 
 Disclaimer
