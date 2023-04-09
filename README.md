@@ -10,6 +10,10 @@ Keep a direction and track your hull and fuel even in external vanity cam
 
 ![C14Explo-2](https://user-images.githubusercontent.com/114026279/229381511-ebcb289c-5b6b-44cb-a281-e0cfaf1b476a.jpg)
 
+The Fuel and hull lvl will blink red when reaching critical level. Same with high G gravity, this way you keep the control of your gears and environnement while playing with beautifull vistas. Avoid explosion repairing your SRV before it's too late!
+
+![C14-Explorer-small](https://user-images.githubusercontent.com/114026279/230783689-db79e6ac-3ddd-4e7c-b49d-0f06c2706cd5.png)
+
 
 Installation
 ---
