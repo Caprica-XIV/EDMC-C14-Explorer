@@ -14,6 +14,7 @@ The Fuel and hull lvl will blink red when reaching critical level. Same with hig
 
 ![C14-Explorer-small](https://user-images.githubusercontent.com/114026279/230783689-db79e6ac-3ddd-4e7c-b49d-0f06c2706cd5.png)
 
+The plugin fully support EDMC UI scale, light mode and dark mode.
 
 Installation
 ---
