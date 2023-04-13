@@ -18,7 +18,7 @@ The plugin fully support EDMC UI scale, light mode and dark mode.
 
 Installation
 ---
-Download from [latest release](https://github.com/Caprica-XIV/EDMC-C14-Explorer/releases/tag/0.4.2).
+Download from [latest release](https://github.com/Caprica-XIV/EDMC-C14-Explorer/releases/tag/0.4.3).
 Extract zip files into the EDMC plugin folder.
 
 Disclaimer
