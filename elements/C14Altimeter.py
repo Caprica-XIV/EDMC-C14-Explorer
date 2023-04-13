@@ -27,15 +27,7 @@ class AltimeterC14():
                                     border=None, borderwidth=0)
         self.alt_canvas.grid(row=0, sticky=tk.W, column=3, padx=5)
         theme.update(self.parent_frame)
-             
-    def popup(self):
-        #self.alt_canvas.grid(row=0, sticky=tk.E, column=3, padx=5)
-        a = 1
-        
-    def dismiss(self):
-        # self.alt_canvas.grid_remove()
-        self.alt_canvas.delete('all')
-            
+    
     def set_Altitude(self, value: any):
         self.Altitude = value
         self.update_alt_canvas()

@@ -37,14 +37,6 @@ class SignalsC14():
         
         theme.update(self.parent_frame)
         
-    def popup(self):
-        # self.frame_signal.grid(row=0,sticky=tk.SW, column=0)
-        a=1
-        
-    def dismiss(self):
-        # self.frame_signal.grid_remove()
-        a=1
-            
     def update_signals_frame(self):
         """ maj des signaux affichés """
 

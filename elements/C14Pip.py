@@ -27,14 +27,6 @@ class PipC14():
         self.pip_canvas.grid(row=0, sticky=tk.W, column=4)
         theme.update(self.parent_frame)
     
-    def popup(self):
-        # self.pip_canvas.grid(row=0, sticky=tk.W, column=0)
-        a = 2
-    
-    def dismiss(self):
-        # self.pip_canvas.grid_remove()
-        self.pip_canvas.delete('all')
-        
     def set_pip(self, sys: int, mot: int, arm: int):
         self.sys = sys
         self.arm = arm

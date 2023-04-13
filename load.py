@@ -2,8 +2,9 @@ import logging
 import os
 import random
 import threading
-from time import sleep
 import tkinter as tk
+
+from time import sleep
 from typing import Any, Dict, Mapping, MutableMapping, Optional
 from tkinter import ttk
 from config import config, appname
@@ -15,9 +16,10 @@ from elements.C14Hudinfo import HudInfoC14
 from elements.C14Pip import PipC14
 from elements.C14Altimeter import AltimeterC14
 from elements.C14Biomes import BiomesC14
+from elements.C14Geologicals import GeologicalsC14
 from C14Flags import FlagsC14
 
-VERSION = "0.4.2"
+VERSION = "0.4.3"
 plugin_name = os.path.basename(os.path.dirname(__file__))
 logger = logging.getLogger(f'{appname}.{plugin_name}')
 
@@ -37,18 +39,20 @@ if not logger.hasHandlers():
 class ExplorerCThis:
     """Holds module globals."""
     def __init__(self, scale: int):
-        self.frame: Optional[tk.Frame]
-        self.signals = SignalsC14()
-        self.compass = CompassC14(logger, scale)
-        self.altimeter = AltimeterC14(logger, scale)
-        self.hudinfo = HudInfoC14(logger, scale)
-        self.pips = PipC14(logger, scale)
-        self.biomes = BiomesC14(logger)
-        self.f_system: Optional[tk.Frame]
-        self.f_biomes: Optional[tk.Frame]
-        self.nearBody = -1
+        self.frame      : Optional[tk.Frame]
+        self.f_system   : Optional[tk.Frame]
+        self.f_biomes   : Optional[tk.Frame]
+        self.f_geos     : Optional[tk.Frame]
+        self.nearBody   = -1
+        self.signals    = SignalsC14()
+        self.compass    = CompassC14(logger, scale)
+        self.altimeter  = AltimeterC14(logger, scale)
+        self.hudinfo    = HudInfoC14(logger, scale)
+        self.pips       = PipC14(logger, scale)
+        self.biomes     = BiomesC14(logger)
+        self.geologicals= GeologicalsC14(logger)
         self.plugin_dir = ''
-        self.ui_scale = scale
+        self.ui_scale   = scale
         
 this = ExplorerCThis(config.get_int('ui_scale'))
 
@@ -68,11 +72,18 @@ def plugin_stop():
 
 def show_system():
     this.f_biomes.grid_remove()
+    this.f_geos.grid_remove()
     this.f_system.grid(row=0,column=0,sticky=tk.SW+tk.E)
     
 def show_biomes():
     this.f_system.grid_remove()
+    this.f_geos.grid_remove()
     this.f_biomes.grid(row=0,column=0,sticky=tk.SW+tk.E)
+
+def show_geologicals():
+    this.f_system.grid_remove()
+    this.f_biomes.grid_remove()
+    this.f_geos.grid(row=0,column=0,sticky=tk.SW+tk.E)
 
 def plugin_app(parent: tk.Frame) -> tk.Frame:
     """
@@ -100,20 +111,25 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     bt_Biomes = tk.Button(row1_1, text='Biomes', command=show_biomes)
     bt_Biomes.grid(row=0,column=1,sticky=tk.W)
 
+    bt_Geos = tk.Button(row1_1, text='Geologicals', command=show_geologicals)
+    bt_Geos.grid(row=0,column=2,sticky=tk.W)
+
     row1_2 = tk.Frame(row1, border=1)
-    row1_2.grid(row=1,sticky=tk.E+tk.W, column=0)   
+    row1_2.grid(row=1,sticky=tk.E+tk.W, column=0)
 
     this.f_system = tk.Frame(row1_2, border=2)
     this.f_system.grid(row=0,sticky=tk.SW+tk.E, column=0)
-    this.signals.setup_frame(this.f_system)    
+    this.signals.setup_frame(this.f_system)
     
-    # tab biomes
     this.f_biomes = tk.Frame(row1_2, border=2)
-    # f_biomes.grid(row=0,sticky=tk.E+tk.W, column=0)
     this.biomes.setup_frame(this.f_biomes)
+    
+    this.f_geos = tk.Frame(row1_2, border=2)
+    this.geologicals.setup_frame(this.f_geos)
     
     theme.update(this.frame)
     open_signals()
+    show_system()
     
     return this.frame
 
@@ -186,7 +202,9 @@ def journal_entry(
     if entry['event'] == 'Location':
         if 'Latitude' in entry: this.compass.set_Latitude( entry['Latitude'] )
         if 'Longitude' in entry: this.compass.set_Longitude( entry['Longitude'] )
-        if( entry['Docked']): open_compass()
+        if( entry['Docked']): 
+            open_compass()
+            show_biomes()
         else: open_signals()
     
     if entry['event'] == 'LeaveBody':
@@ -198,11 +216,13 @@ def journal_entry(
         this.nearBody = 1
         this.altimeter.set_SurfaceGravity(this.signals.get_SurfaceGravity(entry['BodyID']))
         open_compass()
+        show_biomes()
         
     if entry['event'] == 'FSDJump':
         this.altimeter.set_SurfaceGravity(-1)
         this.signals.journal_FSDJump()
         this.biomes.journal_FSDJump()
+        this.geologicals.journal_FSDJump()
         open_signals()
         
     if entry['event'] == 'FSSDiscoveryScan':
@@ -216,18 +236,21 @@ def journal_entry(
     if entry['event'] == 'FSSBodySignals':
         this.signals.journal_FSSBodySignals(entry)
         this.biomes.journal_FSSBodySignals(entry)
+        this.geologicals.journal_FSSBodySignals(entry)
         open_signals()
                     
     if entry['event'] == 'SAASignalsFound':
-        if 'Genuses' in entry:
+        if 'Genuses' in entry and len(entry['Genuses']) > 0:
             this.biomes.journal_SAASignalsFound(entry)
             show_biomes()
         if 'Signals' in entry:
             this.signals.journal_SAASignalsFound(entry)
+            this.geologicals.journal_SAASignalsFound(entry)
 
     if entry['event'] == 'LaunchSRV':
         this.hudinfo.set_ModeSRV(True)
         open_compass()
+        show_biomes()
 
     if entry['event'] == 'DockSRV':
         this.hudinfo.set_ModeSRV(False)
@@ -265,24 +288,25 @@ def journal_entry(
         this.hudinfo.set_ShieldsUp(entry['ShieldsUp'])
     
     if entry['event'] == 'CodexEntry':
-        this.biomes.CodexEntry(entry)
+        if 'SubCategory' in entry and 'Geology' in entry['SubCategory']:
+            this.geologicals.CodexEntry(entry)
+            show_geologicals()
+        else:
+            this.biomes.CodexEntry(entry)
+            show_biomes()
     
     if entry['event'] == 'ScanOrganic':
         this.biomes.ScanOrganic(entry)
+        show_biomes()
             
 
 def open_compass():
     if this.nearBody != 0:
-        this.signals.dismiss()
         this.compass.popup()
-        this.altimeter.popup()
 
 def open_signals():
     this.compass.dismiss()
-    this.altimeter.dismiss()
-    this.biomes.dismiss()
-    this.signals.popup()
+    show_system()
     
 def open_biomes():
-    this.signals.dismiss()
-    this.biomes.popup()
+    show_biomes()
