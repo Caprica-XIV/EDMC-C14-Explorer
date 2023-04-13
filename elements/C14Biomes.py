@@ -17,17 +17,23 @@ class BiomesC14():
         self.biomes_frame = tk.Frame(self.parent_frame)
         theme.update(self.parent_frame)
         
+    def get_short(self, name: str) -> str:
+        """ découpe un nom de planète pour ressortir juste les derniers identifiant """
+        split=name.split(' ')
+        short=''
+        for i in range(len(split)-1, 0, -1):
+            short = split[i] + short
+            if split[i] in '0123456789':
+                break
+        return short
+        
     def get_body(self, entry: MutableMapping[str, Any]):
         """ Retourne l'objet json interne représentant le body et ses biomes """
         for bdy in self.bodies:
             if 'BodyID' in entry and bdy['id'] == entry['BodyID']:
                 if 'BodyName' in entry and len(bdy['short']) < 1:
                     bdy['name'] = entry['BodyName']
-                    split=entry['BodyName'].split(' ')
-                    if '0123456789' in split[-1]:
-                        bdy['short']=split[-1]
-                    else:
-                        bdy['short']=split[len(split)-2] + split[-1]
+                    bdy['short']= self.get_short(entry['BodyName'])
                         
                 return bdy
             elif 'Body' in entry and bdy['id'] == entry['Body']:
@@ -40,19 +46,13 @@ class BiomesC14():
         """ Crée l'objet nécessaire à la gestion """
         id = entry['BodyID'] if 'BodyID' in entry else entry['Body']
         name = ''
-        short = ''
         if 'BodyName' in entry:
             name = entry['BodyName']
         else:
             name = self.state_body
-        split= name.split(' ')
-        for i in range(len(split)-1, 0, -1):
-            short = split[i] + short
-            if split[i] in '0123456789':
-                break
         self.bodies.append({'id': id,
                             'name': name,
-                            'short': short,
+                            'short': self.get_short(name),
                             'biologicals': 0,
                             'biomes': []
                             })
